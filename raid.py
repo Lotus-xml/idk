@@ -40,8 +40,6 @@ def Init():
         print(f"{Fore.RED}[ERROR] {Fore.YELLOW}Improper token has been passed"+Fore.RESET)
         os.system('pause >NUL')
 
-terminal_title = "Server Raider Self-Bot | Made by Lotus.xml#8697"
-print(f'\33]0;{terminal_title}\a', end='', flush=True)
 prefix = ('.')
 colorama.init()
 intents = discord.Intents.all()

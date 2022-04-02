@@ -1,5 +1,4 @@
-# So many imports, clean it up faggot 
-#😭😭😭
+# cum
 import json
 import asyncio
 import random
@@ -510,19 +509,6 @@ async def tokeninfo(ctx, _token): # b'\xfc'
 @bot.command()
 async def help(ctx):
     await ctx.message.delete()
-    print(f'''
-    {prefix}tokenraid [threads] [amount] [channel id] (message)
-    {prefix}tokenjoin [delay] [invite code]
-    {prefix}spam (amount) (message)
-    {prefix}webhookraid    spams a server with webhooks
-    {prefix}stopwebhookraid    stops the raid
-    {prefix}nuke    nukes the server
-    {prefix}ping    checks the bots ping
-    {prefix}lagchat    spam discord crash gifs
-    {prefix}logout    logs the bot out
-    {prefix}hypesquad (hypesquad) changes hypesquad
-    {prefix}tokeninfo (token) displays info on the given token
-    ''')
     await ctx.send(f"""```
     {prefix}tokenraid [threads] [amount] [channel id] (message)
     {prefix}tokenjoin [delay] [invite code]

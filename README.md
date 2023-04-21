@@ -1,17 +1,2 @@
 # sum selfbot
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### i fucked your mother
+### some stuff is outdated ):

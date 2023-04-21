@@ -472,7 +472,7 @@ async def hypesquad(ctx, house): # b'\xfc'
         print(f"{Fore.RED}[ERROR]: {Fore.YELLOW}{e}"+Fore.RESET)
 
 @bot.command(aliases=['tokinfo', 'tdox'])
-async def tokeninfo(ctx, _token): # b'\xfc'
+async def tokeninfo(ctx, _token): 
     await ctx.message.delete()
     headers = {
         'Authorization': _token,
